@@ -1,4 +1,5 @@
 from os import fpathconf
+from matplotlib.backend_bases import MouseButton
 import numpy as np
 from matplotlib import pyplot as plt
 from typing import Tuple
@@ -42,10 +43,6 @@ def make_mandelbrot(coords, max_iter=20, plot=True):
     
     mandelbrot = mandelbrot.reshape(res, res)
 
-    if plot:
-        plt.imshow(mandelbrot, cmap = 'gnuplot2')
-        plt.show()
-
     return mandelbrot
 
 def zoom(bbox, focal, factor):
@@ -58,17 +55,35 @@ def zoom(bbox, focal, factor):
 
     return (x - w, x + w, y - h, y + h)
 
+def onclick(event):
+    global bbox, focal_point, zoom_factor, ax
+    focal_point = (event.x, event.y)
+    bbox = zoom(bbox, focal_point, zoom_factor)
+    coords = make_grid(bbox, res=500)
+    mb = make_mandelbrot(coords, max_iter=int(50*zoom_factor))
+    plt.clf()
+    plt.imshow(mb)
+    plt.draw() #redraw
 
 bbox = (-2.1, 1, -1.3, 1.3)
-focal_point = (-0.75, 0.1)
-zoom_factor = 10
+focal_point = (-0.749, 0.09)
+zoom_factor = 2
 
 # for i in range(16):
 #     bbox = zoom(bbox, focal_point, zoom_factor)
-#     coords = make_grid(bbox)
+#     coords = make_grid(bbox, res=300)
 #     mb = make_mandelbrot(coords, max_iter=50 + 1*50)
 
-bbox = zoom(bbox, (-0.5, 0), zoom_factor)
+bbox = zoom(bbox, focal_point, zoom_factor)
 coords = make_grid(bbox, res=500)
-mb = make_mandelbrot(coords, max_iter=int(100*zoom_factor))
+mb = make_mandelbrot(coords, max_iter=int(50*zoom_factor))
+
+fig, ax = plt.subplots()
+ax.imshow(mb)
+plt.connect('button_press_event', onclick)
+plt.show()
+
+        
+
+
 
