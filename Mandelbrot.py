@@ -1,5 +1,3 @@
-from os import fpathconf
-from matplotlib.backend_bases import MouseButton
 import numpy as np
 from matplotlib import pyplot as plt
 
@@ -14,7 +12,6 @@ def diverge(c : complex, max_iter=20):
     Function to check whether a given coordinate diverges after max_iter iterations of f
     '''
     z = 0.0j
-
     for i in range(max_iter):
         if z.real**2 + z.imag**2 >= 4: return i
         z = f(z, c)
@@ -26,7 +23,6 @@ def make_mandelbrot(bbox, res=500, max_iter=100):
     Function to plot mandelbrot coords
     '''
     mb = np.zeros([res, res])
-
     x_min, x_max, y_min, y_max = bbox
 
     for row_index, real in enumerate(np.linspace(x_min, x_max, num=res)):
@@ -35,24 +31,21 @@ def make_mandelbrot(bbox, res=500, max_iter=100):
 
     return mb.T
 
-
 def zoom(bbox, focal, factor):
     '''
-    Function to redefine the '''
+    Function to define zoom feature
+    '''
     x, y = focal
-
     x_min, x_max, y_min, y_max = bbox
-
-    print(f"xmin: {x_min}, xmax: {x_max}, ymin: {y_min}, ymax: {y_max}")
-
     w = (x_max - x_min) / (2 * factor)
     h = (y_max - y_min) / (2 * factor)
-
-    print(f"zoom: {factor}, focal: {focal}, w: {w}, h: {h}")
 
     return (x - w, x + w, y - h, y + h)
 
 def draw_mandelbrot(mb):
+    '''
+    Function to update mandelbrot plot
+    '''
     plt.clf()
     plt.imshow(mb, cmap='hot', interpolation='bilinear', extent=[*bbox])
     plt.draw()
@@ -62,12 +55,18 @@ def draw_mandelbrot(mb):
 
 def onclick(event):
     '''
-    Function to fit bounding box to zoom size'''
+    Function to fit bounding box to zoom size
+    '''
     global bbox, focal_point, zoom_factor
-    zoom_factor *= 1.5
+    zoom_factor *= 2
+    print(f"current focal: {focal_point}")
+    print(f"current bbox: {bbox}")
     focal_point = (event.xdata, event.ydata)
     new_bbox = zoom(bbox, focal_point, zoom_factor)
-    mb = make_mandelbrot(new_bbox, max_iter=int(100 + 20*zoom_factor))
+    print(f"new focal: {focal_point}")
+    print(f"new bbox: {new_bbox}")
+    print(f"zoom: {zoom_factor}")
+    mb = make_mandelbrot(new_bbox, max_iter=int(100 + 10*zoom_factor))
     draw_mandelbrot(mb)
 
 bbox = (-2.1, 1, -1.3, 1.3)
